@@ -1,3 +1,6 @@
+permissions:
+  contents: write
+  pages: write
 name: AI Selection Auto-Run
 
 on:
