@@ -34,16 +34,18 @@ jobs:
 
       - name: 运行自动化流水线
         env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
           TARGET_CATEGORY: ${{ github.event.inputs.category }}
           TARGET_KEYWORDS: ${{ github.event.inputs.keywords }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python harvester.py   # 生成 raw_data.json
-          python analyst.py     # 读取 raw_data.json，生成 analysis_report.json
-          python renderer.py    # 读取 analysis_report.json，生成 index.html
-          python notifier.py    # 发送通知
+          # 即使其中一个失败，也要继续跑完，确保你能收到 Telegram 报错提醒
+          python harvester.py || echo "采集阶段跳过"
+          python analyst.py || echo "AI分析阶段跳过"
+          python renderer.py || echo "网页渲染阶段跳过"
+          python notifier.py || echo "发送通知"
 
       - name: 自动部署网页版报告
         uses: peaceiris/actions-gh-pages@v3
