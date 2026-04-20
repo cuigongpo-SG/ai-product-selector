@@ -40,11 +40,10 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          # 按照顺序执行每一个脚本 [cite: 21]
-          python harvester.py   # 1. 采集原始数据 [cite: 14]
-          python analyst.py     # 2. 调用 AI 分析 (这里刚改了 URL) [cite: 14]
-          python renderer.py    # 3. 把分析结果转成网页 [cite: 19]
-          python notifier.py    # 4. 把网页链接发到 Telegram [cite: 15]
+          python harvester.py   # 生成 raw_data.json
+          python analyst.py     # 读取 raw_data.json，生成 analysis_report.json
+          python renderer.py    # 读取 analysis_report.json，生成 index.html
+          python notifier.py    # 发送通知
 
       - name: 自动部署网页版报告
         uses: peaceiris/actions-gh-pages@v3
