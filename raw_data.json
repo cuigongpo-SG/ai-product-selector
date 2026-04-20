@@ -1,0 +1,18 @@
+{
+    "config": {
+        "category": "press on nails",
+        "keywords": "nails"
+    },
+    "platform_data": [
+        {
+            "source": "TikTok",
+            "product": "Viral press on nails nails",
+            "metric": "Trending (Simulated)"
+        },
+        {
+            "source": "Amazon",
+            "product": "Best Seller press on nails nails",
+            "metric": "High Sales (Simulated)"
+        }
+    ]
+}
