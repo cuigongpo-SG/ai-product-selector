@@ -1,0 +1,48 @@
+name: AI Selection Auto-Run
+
+on:
+  schedule:
+    # 定时任务：每天两次运行 [cite: 32]
+    - cron: '0 1,13 * * *'
+  workflow_dispatch:
+    # 手动触发：允许你输入变量
+    inputs:
+      category:
+        description: '想要采集的产品品类 (例如: Kitchen, Pet, 3C)'
+        required: true
+        default: 'Home'
+      keywords:
+        description: '关键词过滤 (例如: Portable, Wireless)'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+
+      - name: Run Harvester
+        env:
+          # 传递变量给 Python
+          TARGET_CATEGORY: ${{ github.event.inputs.category }}
+          TARGET_KEYWORDS: ${{ github.event.inputs.keywords }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python harvester.py
+
+      - name: Upload Raw Data
+        uses: actions/upload-artifact@v3
+        with:
+          name: raw-data
+          path: raw_data.json
