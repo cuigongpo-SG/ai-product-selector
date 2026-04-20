@@ -12,7 +12,6 @@ on:
         required: false
         default: ''
 
-# 必须要加这部分，否则 GitHub 没权限帮你发布网页
 permissions:
   contents: write
   pages: write
@@ -22,18 +21,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: 设置 Python 环境
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
+      - name: 安装必要工具
         run: pip install -r requirements.txt requests
 
-      - name: Run All Scripts
+      - name: 运行自动化流水线
         env:
           TARGET_CATEGORY: ${{ github.event.inputs.category }}
           TARGET_KEYWORDS: ${{ github.event.inputs.keywords }}
@@ -41,14 +40,15 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python harvester.py
-          python analyst.py
-          python renderer.py
-          python notifier.py
+          # 按照顺序执行每一个脚本 [cite: 21]
+          python harvester.py   # 采集
+          python analyst.py     # AI分析
+          python renderer.py    # 生成网页
+          python notifier.py    # 发送通知
 
-      - name: Upload to GitHub Pages
+      - name: 自动部署网页版报告
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./ 
-          publish_branch: gh-pages # 网页会自动发到这个分支
+          publish_branch: gh-pages
