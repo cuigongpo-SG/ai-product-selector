@@ -13,7 +13,7 @@ def analyze_data():
 
     # 2. 准备 Gemini API 请求
     api_key = os.getenv('GEMINI_API_KEY')
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     
     headers = {'Content-Type': 'application/json'}
     
