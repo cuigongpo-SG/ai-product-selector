@@ -1,8 +1,6 @@
 name: AI Selection Auto-Run
 
 on:
-  schedule:
-    - cron: '0 1,13 * * *'
   workflow_dispatch:
     inputs:
       category:
@@ -14,7 +12,7 @@ on:
         required: false
         default: ''
 
-# 新增：允许脚本修改仓库内容（为了发布网页报告）
+# 必须要加这部分，否则 GitHub 没权限帮你发布网页
 permissions:
   contents: write
   pages: write
@@ -33,9 +31,9 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt playwright requests
+        run: pip install -r requirements.txt requests
 
-      - name: Run Pipeline
+      - name: Run All Scripts
         env:
           TARGET_CATEGORY: ${{ github.event.inputs.category }}
           TARGET_KEYWORDS: ${{ github.event.inputs.keywords }}
@@ -48,8 +46,9 @@ jobs:
           python renderer.py
           python notifier.py
 
-      - name: Deploy to GitHub Pages
+      - name: Upload to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./ # 部署当前目录下的 index.html
+          publish_dir: ./ 
+          publish_branch: gh-pages # 网页会自动发到这个分支
