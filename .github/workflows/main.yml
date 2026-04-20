@@ -6,46 +6,50 @@ on:
   workflow_dispatch:
     inputs:
       category:
-        description: '想要采集的产品品类 (例如: Kitchen, Pet, 3C)'
+        description: '品类'
         required: true
         default: 'Home'
       keywords:
-        description: '关键词过滤 (例如: Portable, Wireless)'
+        description: '关键词'
         required: false
         default: ''
+
+# 新增：允许脚本修改仓库内容（为了发布网页报告）
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  # 升级到 v4
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # 升级到 v5
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          playwright install chromium
+        run: pip install -r requirements.txt playwright requests
 
-      - name: Run Harvester
+      - name: Run Pipeline
         env:
           TARGET_CATEGORY: ${{ github.event.inputs.category }}
           TARGET_KEYWORDS: ${{ github.event.inputs.keywords }}
-        run: python harvester.py
-
-      - name: Run Analyst (Gemini AI)
-        env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python analyst.py  # 这一步会调用你刚才创建的分析脚本
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python harvester.py
+          python analyst.py
+          python renderer.py
+          python notifier.py
 
-      - name: Upload Reports
-        uses: actions/upload-artifact@v4 # 核心修复点：改用 v4 版本
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: selection-reports
-          path: |
-            raw_data.json
-            analysis_report.json
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./ # 部署当前目录下的 index.html
