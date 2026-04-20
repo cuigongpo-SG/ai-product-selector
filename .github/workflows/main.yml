@@ -2,10 +2,8 @@ name: AI Selection Auto-Run
 
 on:
   schedule:
-    # 定时任务：每天两次运行 [cite: 32]
     - cron: '0 1,13 * * *'
   workflow_dispatch:
-    # 手动触发：允许你输入变量
     inputs:
       category:
         description: '想要采集的产品品类 (例如: Kitchen, Pet, 3C)'
@@ -21,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # 升级到 v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # 升级到 v5
         with:
           python-version: '3.9'
 
@@ -35,14 +33,19 @@ jobs:
 
       - name: Run Harvester
         env:
-          # 传递变量给 Python
           TARGET_CATEGORY: ${{ github.event.inputs.category }}
           TARGET_KEYWORDS: ${{ github.event.inputs.keywords }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python harvester.py
 
-      - name: Upload Raw Data
-        uses: actions/upload-artifact@v3
+      - name: Run Analyst (Gemini AI)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python analyst.py  # 这一步会调用你刚才创建的分析脚本
+
+      - name: Upload Reports
+        uses: actions/upload-artifact@v4 # 核心修复点：改用 v4 版本
         with:
-          name: raw-data
-          path: raw_data.json
+          name: selection-reports
+          path: |
+            raw_data.json
+            analysis_report.json
