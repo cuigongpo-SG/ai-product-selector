@@ -1,4 +1,4 @@
 {
     "status": "error",
-    "message": "Page.wait_for_selector: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[id^=\\\"gridItemRoot\\\"]\") to be visible\n"
+    "message": "Page.wait_for_selector: Timeout 10000ms exceeded.\nCall log:\n  - waiting for locator(\"div[id^=\\\"gridItemRoot\\\"]\") to be visible\n"
 }
