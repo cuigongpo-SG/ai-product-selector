@@ -1,5 +1,5 @@
 {
     "status": "error",
-    "message": "Amazon blocked or URL incorrect",
+    "message": "Page.wait_for_selector: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator(\"h2 span\") to be visible\n",
     "data": []
 }
