@@ -4,13 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       category:
-        description: '品类'
+        description: 'Amazon US Category (e.g., kitchen, electronics)'
         required: true
-        default: 'Home'
-      keywords:
-        description: '关键词'
-        required: false
-        default: ''
+        default: 'kitchen'
 
 permissions:
   contents: write
@@ -21,33 +17,34 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
+      - name: 1. 检出仓库代码
         uses: actions/checkout@v4
 
-      - name: 设置 Python 环境
+      - name: 2. 部署 Python 环境
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
-      - name: 安装必要工具
-        run: pip install -r requirements.txt requests
+      - name: 3. 安装依赖与浏览器内核
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install chromium --with-deps
 
-      - name: 运行自动化流水线
+      - name: 4. 执行自动化流水线
         env:
           TARGET_CATEGORY: ${{ github.event.inputs.category }}
-          TARGET_KEYWORDS: ${{ github.event.inputs.keywords }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python harvester.py   # 生成 raw_data.json
-          python analyst.py     # 读取 raw_data.json，生成 analysis_report.json
-          python renderer.py    # 读取 analysis_report.json，生成 index.html
-          python notifier.py    # 发送通知
+          python harvester.py   # 采集北美数据
+          python analyst.py     # Gemini 2.5 分析
+          python renderer.py    # 渲染 HTML 报告
+          python notifier.py    # 发送 Telegram 通知
 
-      - name: 自动部署网页版报告
+      - name: 5. 部署报告至 GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./ 
+          publish_dir: ./
           publish_branch: gh-pages
