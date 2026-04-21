@@ -3,9 +3,9 @@ import os
 from playwright.sync_api import sync_playwright
 
 def collect_amazon_us_data():
-    category = os.getenv('TARGET_CATEGORY', 'kitchen').lower()
-    # 目的地：北美站 Bestsellers 准确路径
-    target_url = f"https://www.amazon.com/Best-Sellers-{category}/zgbs/{category}"
+    # 在 harvester.py 中修改这一行
+category = os.getenv('TARGET_CATEGORY', 'kitchen').lower().replace(' ', '-')
+target_url = f"https://www.amazon.com/Best-Sellers-{category}/zgbs/{category}"
     
     print(f"📡 正在接入北美站目的地: {target_url}")
 
