@@ -1,4 +1,4 @@
 {
     "status": "error",
-    "message": "Locator.inner_text: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[id^=\\\"gridItemRoot\\\"]\").first.locator(\"div._cDE_v_title_3u94M\")\n"
+    "message": "Page.wait_for_selector: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[id^=\\\"gridItemRoot\\\"]\") to be visible\n"
 }
