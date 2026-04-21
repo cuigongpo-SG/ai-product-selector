@@ -1,26 +1,18 @@
-import os
-import requests
+import os, requests
 
-def send_tg_message():
+def notify():
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
-    # 这里的链接我们将利用 GitHub Pages 的默认格式
-    repo_name = os.getenv('GITHUB_REPOSITORY') # 格式为 "username/repo"
-    user = repo_name.split('/')[0]
-    project = repo_name.split('/')[1]
+    repo = os.getenv('GITHUB_REPOSITORY') # "user/repo"
+    
+    # 严谨的 GitHub Pages 链接构建逻辑
+    user, project = repo.split('/')
     report_url = f"https://{user}.github.io/{project}/"
 
-    text = f"🚀 **AI 选品新发现！**\n\n最新的深度分析报告已生成，快去看看吧：\n👉 [点击查看完整网页报告]({report_url})"
+    msg = f"🚀 **Amazon US 选品日报已生成**\n\nAI 已完成对北美市场的深度分析。\n👉 [点击查看网页报告]({report_url})"
     
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {
-        "chat_id": chat_id,
-        "text": text,
-        "parse_mode": "Markdown"
-    }
-    
-    requests.post(url, json=payload)
-    print("✅ Telegram 通知已发出")
+    requests.post(f"https://api.telegram.org/bot{token}/sendMessage", 
+                  json={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"})
 
 if __name__ == "__main__":
-    send_tg_message()
+    notify()

@@ -1,35 +1,42 @@
 import json
 import os
+from playwright.sync_api import sync_playwright
 
-def collect_data():
-    # A. 获取你在 GitHub 界面输入的变量
-    category = os.getenv('TARGET_CATEGORY', 'General')
-    keywords = os.getenv('TARGET_KEYWORDS', '')
+def collect_amazon_us_data():
+    category = os.getenv('TARGET_CATEGORY', 'kitchen').lower()
+    # 目的地：北美站 Bestsellers 准确路径
+    target_url = f"https://www.amazon.com/Best-Sellers-{category}/zgbs/{category}"
+    
+    print(f"📡 正在接入北美站目的地: {target_url}")
 
-    print(f"🎯 正在执行选品指令：品类[{category}]，关键词[{keywords}]")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            locale="en-US"
+        )
+        page = context.new_page()
+        
+        try:
+            page.goto(target_url, timeout=60000, wait_until="domcontentloaded")
+            # 针对美国站结构的精准选择器
+            page.wait_for_selector('div[id^="gridItemRoot"]')
+            items = page.locator('div[id^="gridItemRoot"]').all()[:3]
+            
+            extracted_data = []
+            for item in items:
+                # 抓取亚马逊北美站产品标题文字
+                title = item.locator('div._cDE_v_title_3u94M').inner_text().strip()
+                extracted_data.append({"platform": "Amazon US", "title": title})
+            
+            output = {"status": "success", "market": "US", "data": extracted_data}
+        except Exception as e:
+            output = {"status": "error", "message": str(e)}
+        
+        browser.close()
 
-    # B. 模拟从 TikTok 和 Amazon 获取 Top 3 的数据 [cite: 34, 35]
-    # 后续我们会在这里填充真正的 Playwright 爬虫逻辑
-    raw_results = {
-        "config": {"category": category, "keywords": keywords},
-        "platform_data": [
-            {
-                "source": "TikTok", 
-                "product": f"Viral {category} {keywords}".strip(), 
-                "metric": "Trending (Simulated)"
-            },
-            {
-                "source": "Amazon", 
-                "product": f"Best Seller {category} {keywords}".strip(), 
-                "metric": "High Sales (Simulated)"
-            }
-        ]
-    }
-
-    # C. 将抓取到的“原始数据”保存为 JSON 文件 [cite: 41]
     with open('raw_data.json', 'w', encoding='utf-8') as f:
-        json.dump(raw_results, f, ensure_ascii=False, indent=4)
-    print("✅ 原始数据采集成功，已存入 raw_data.json")
+        json.dump(output, f, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    collect_data()
+    collect_amazon_us_data()

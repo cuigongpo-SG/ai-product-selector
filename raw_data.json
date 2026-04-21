@@ -1,18 +1,4 @@
 {
-    "config": {
-        "category": "press on nails",
-        "keywords": "nails"
-    },
-    "platform_data": [
-        {
-            "source": "TikTok",
-            "product": "Viral press on nails nails",
-            "metric": "Trending (Simulated)"
-        },
-        {
-            "source": "Amazon",
-            "product": "Best Seller press on nails nails",
-            "metric": "High Sales (Simulated)"
-        }
-    ]
+    "status": "error",
+    "message": "Page.wait_for_selector: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[id^=\\\"gridItemRoot\\\"]\") to be visible\n"
 }
